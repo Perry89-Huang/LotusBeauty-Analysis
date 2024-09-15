@@ -1,36 +1,37 @@
-import logo from './logo.svg';
-import './App.css';
+import React from 'react';
+import { ApolloClient, InMemoryCache, ApolloProvider, createHttpLink } from '@apollo/client';
+import { setContext } from '@apollo/client/link/context';
+import RestaurantOrderApp from './RestaurantOrderApp';
 
+// Apollo Client 設置（保持不變）
+const hasuraLink = process.env.REACT_APP_HASURA_LINK;
+if (!hasuraLink) {
+  throw new Error('REACT_APP_HASURA_LINK is not defined in the environment');
+}
 
-import pcloudSdk from 'pcloud-sdk-js';
-
-// Create `client` using an oAuth token:
-const client = pcloudSdk.createClient('access_token');
-
-// then list root folder's contents:
-client.listfolder(0).then((fileMetadata) => {
-  console.log(fileMetadata);
+const httpLink = createHttpLink({
+  uri: hasuraLink,
 });
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
-}
+const authLink = setContext((_, { headers }) => {
+  return {
+    headers: {
+      ...headers,
+      'x-hasura-admin-secret': process.env.REACT_APP_HASURA_ADMIN_SECRET,
+    }
+  }
+});
+
+const client = new ApolloClient({
+  link: authLink.concat(httpLink),
+  cache: new InMemoryCache()
+});
+
+
+const App = () => (
+  <ApolloProvider client={client}>
+    <RestaurantOrderApp restaurantId={1} />
+  </ApolloProvider>
+);
 
 export default App;
