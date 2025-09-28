@@ -45,19 +45,21 @@ const GET_RESTAURANT_DATA = gql`
 `;
 
 const CREATE_ORDER_MUTATION = gql`
-  mutation CreateOrder($table_id: Int!, $status: String!, $total_amount: numeric!) {
-    insert_orders_one(object: {
-      table_id: $table_id,
-      status: $status,
-      total_amount: $total_amount
-    }) {
-      id
-      table_id
-      status
-      total_amount
-      created_at
-    }
+mutation CreateOrder($table_id: Int!, $status: String!, $total_amount: numeric!, $pay_method: String) {
+  insert_orders_one(object: {
+    table_id: $table_id,
+    status: $status,
+    total_amount: $total_amount,
+    pay_method: $pay_method
+  }) {
+    id
+    status
+    table_id
+    total_amount
+    pay_method
+    created_at
   }
+}
 `;
 
 
@@ -78,7 +80,7 @@ const CREATE_ORDER_ITEMS_MUTATION = gql`
   }
 `;
 
-const RestaurantOrderApp = ({ restaurantId }) => {
+const OrderApp = ({ restaurantId }) => {
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [cart, setCart] = useState([]);
   const [showOptionModal, setShowOptionModal] = useState(false);
@@ -112,8 +114,9 @@ const RestaurantOrderApp = ({ restaurantId }) => {
       const { data: orderData } = await createOrder({
         variables: {
           table_id: selectedTable,
-          status: 'pending',
-          total_amount: totalAmount
+          status: 'submitted',
+          total_amount: totalAmount,
+          pay_method: paymentMethod // 新增支付方式
         }
       });
   
@@ -386,7 +389,7 @@ const RestaurantOrderApp = ({ restaurantId }) => {
             }
           }}
         >
-          結帳 (${getTotalPrice().toFixed(2)})
+          結帳 (${getTotalPrice()})
         </button>
 
         {showOptionModal && (
@@ -494,7 +497,7 @@ const RestaurantOrderApp = ({ restaurantId }) => {
                 ))}
               </div>
               <div className="mt-4 pt-4 border-t">
-                <p className="font-bold text-lg">總計: ${getTotalPrice().toFixed(2)}</p>
+                <p className="font-bold text-lg">總計: ${getTotalPrice()}</p>
               </div>
               <button
                 onClick={() => setShowCartModal(false)}
@@ -524,4 +527,4 @@ const RestaurantOrderApp = ({ restaurantId }) => {
 };
 
 
-export default RestaurantOrderApp;
+export default OrderApp;

@@ -1,7 +1,7 @@
 import React from 'react';
 import { ApolloClient, InMemoryCache, ApolloProvider, createHttpLink } from '@apollo/client';
 import { setContext } from '@apollo/client/link/context';
-import RestaurantOrderApp from './RestaurantOrderApp';
+import CompetitorAnalysisHomepage from './CompetitorAnalysisHomepage';
 
 // Apollo Client 設置（保持不變）
 const hasuraLink = process.env.REACT_APP_HASURA_LINK;
@@ -30,7 +30,7 @@ const client = new ApolloClient({
 
 const App = () => (
   <ApolloProvider client={client}>
-    <RestaurantOrderApp restaurantId={1} />
+    <CompetitorAnalysisHomepage />
   </ApolloProvider>
 );
 
